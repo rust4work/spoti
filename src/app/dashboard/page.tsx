@@ -1,4 +1,5 @@
 import React, { Suspense } from "react";
+import type { SpotifyRecentlyPlayedItem, SpotifyArtist } from "@/types/spotify";
 import { getSpotifyData } from "@/lib/spotify-server";
 import { StatCard } from "@/components/ui/StatCard";
 import { Music, Mic2, Clock } from "lucide-react";
