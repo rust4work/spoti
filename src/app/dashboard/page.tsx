@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/Card";
 import Link from "next/link";
 import { ChartsWrapper } from "./ChartsWrapper";
 import { redirect } from "next/navigation";
-import { SpotifyArtist, SpotifyRecentlyPlayedItem } from "@/types/spotify";
+import { AutoRedirect } from "@/components/auth/AutoRedirect";
 
 async function DashboardOverview() {
   const [topTracks, topArtists, recentlyPlayed] = await Promise.all([
@@ -15,6 +15,10 @@ async function DashboardOverview() {
     getSpotifyData("/me/top/artists?limit=5&time_range=short_term"),
     getSpotifyData("/me/player/recently-played?limit=10"),
   ]);
+
+  if (!topTracks || !topArtists || !recentlyPlayed) {
+    return <AutoRedirect to="/api/auth/login" />;
+  }
 
   return (
     <div className="space-y-8">

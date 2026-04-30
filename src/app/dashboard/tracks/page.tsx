@@ -5,8 +5,14 @@ import { Card } from "@/components/ui/Card";
 import { Clock } from "lucide-react";
 import { redirect } from "next/navigation";
 
+import { AutoRedirect } from "@/components/auth/AutoRedirect";
+
 async function TopTracksList() {
   const data = await getSpotifyData("/me/top/tracks?limit=50&time_range=long_term");
+
+  if (!data) {
+    return <AutoRedirect to="/api/auth/login" />;
+  }
 
   return (
     <Card className="p-0 overflow-hidden">

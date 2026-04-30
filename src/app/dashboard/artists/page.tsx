@@ -4,8 +4,14 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { Card } from "@/components/ui/Card";
 import { redirect } from "next/navigation";
 
+import { AutoRedirect } from "@/components/auth/AutoRedirect";
+
 async function TopArtistsGrid() {
   const data = await getSpotifyData("/me/top/artists?limit=50&time_range=long_term");
+
+  if (!data) {
+    return <AutoRedirect to="/api/auth/login" />;
+  }
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">

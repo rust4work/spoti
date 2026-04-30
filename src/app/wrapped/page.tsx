@@ -3,11 +3,17 @@ import { getSpotifyData } from "@/lib/spotify-server";
 import { WrappedClient } from "./WrappedClient";
 import { redirect } from "next/navigation";
 
+import { AutoRedirect } from "@/components/auth/AutoRedirect";
+
 export default async function WrappedPage() {
   const [topTracks, topArtists] = await Promise.all([
     getSpotifyData("/me/top/tracks?limit=1&time_range=long_term"),
     getSpotifyData("/me/top/artists?limit=5&time_range=long_term"),
   ]);
+
+  if (!topTracks || !topArtists) {
+    return <AutoRedirect to="/api/auth/login" />;
+  }
 
   return <WrappedClient topTracks={topTracks} topArtists={topArtists} />;
 }
