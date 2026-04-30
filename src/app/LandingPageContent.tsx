@@ -38,11 +38,11 @@ export function LandingPageContent() {
           Dive deep into your listening habits. Discover your top tracks, artists, and genres with stunning, interactive analytics.
         </p>
 
-        <Link href="/api/auth/login">
+        <a href="/api/auth/login">
           <Button size="lg" className="text-lg px-8 py-6 rounded-full shadow-lg hover:scale-105 transition-transform duration-300">
             Connect with Spotify
           </Button>
-        </Link>
+        </a>
       </motion.div>
 
       <div className="absolute bottom-10 text-sm text-white/40">
