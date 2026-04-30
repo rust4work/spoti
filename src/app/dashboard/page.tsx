@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/Card";
 import Link from "next/link";
 import { ChartsWrapper } from "./ChartsWrapper";
 import { redirect } from "next/navigation";
+import { SpotifyArtist, SpotifyRecentlyPlayedItem } from "@/types/spotify";
 
 async function DashboardOverview() {
   const [topTracks, topArtists, recentlyPlayed] = await Promise.all([
@@ -54,7 +55,7 @@ async function DashboardOverview() {
             <h2 className="text-xl font-semibold">Recently Played</h2>
           </div>
           <div className="space-y-4">
-            {recentlyPlayed?.items.slice(0, 5).map((item: any, i: number) => (
+            {recentlyPlayed?.items.slice(0, 5).map((item: SpotifyRecentlyPlayedItem, i: number) => (
               <div key={`${item.track.id}-${i}`} className="flex items-center gap-4 group">
                 <img
                   src={item.track.album.images[0]?.url}
@@ -66,7 +67,7 @@ async function DashboardOverview() {
                     {item.track.name}
                   </p>
                   <p className="text-xs text-muted truncate">
-                    {item.track.artists.map((a: any) => a.name).join(", ")}
+                    {item.track.artists.map((a: SpotifyArtist) => a.name).join(", ")}
                   </p>
                 </div>
                 <div className="text-xs text-muted">
@@ -86,7 +87,7 @@ async function DashboardOverview() {
             </Link>
           </div>
           <div className="space-y-4">
-            {topArtists?.items.map((artist: any) => (
+            {topArtists?.items.map((artist: SpotifyArtist) => (
               <div key={artist.id} className="flex items-center gap-4 group">
                 <img
                   src={artist.images[0]?.url}
