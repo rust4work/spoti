@@ -1,7 +1,11 @@
 // Spotify API Constants and Utilities
 
-export const SPOTIFY_CLIENT_ID = process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID || "";
-export const REDIRECT_URI = process.env.NEXT_PUBLIC_REDIRECT_URI || "http://localhost:3000/api/auth/callback";
+export const SPOTIFY_CLIENT_ID =
+  process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID || "";
+export const REDIRECT_URI =
+  process.env.NODE_ENV === "production"
+    ? "https://spoti-ten.vercel.app/api/auth/callback"
+    : "http://localhost:3000/api/auth/callback/spotify";
 export const SCOPES = [
   "user-read-private",
   "user-read-email",
@@ -17,7 +21,8 @@ export const SPOTIFY_API_BASE_URL = "https://api.spotify.com/v1";
  * Generates a random alphanumeric string for PKCE
  */
 export function generateRandomString(length: number): string {
-  const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const possible =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   const values = crypto.getRandomValues(new Uint8Array(length));
   return values.reduce((acc, x) => acc + possible[x % possible.length], "");
 }
@@ -36,7 +41,9 @@ function base64UrlEncode(buffer: ArrayBuffer): string {
 /**
  * Generates a PKCE code challenge from a code verifier
  */
-export async function generateCodeChallenge(codeVerifier: string): Promise<string> {
+export async function generateCodeChallenge(
+  codeVerifier: string,
+): Promise<string> {
   const data = new TextEncoder().encode(codeVerifier);
   const digest = await crypto.subtle.digest("SHA-256", data);
   return base64UrlEncode(digest);
@@ -45,7 +52,11 @@ export async function generateCodeChallenge(codeVerifier: string): Promise<strin
 /**
  * Spotify API fetch wrapper
  */
-export async function fetchSpotifyApi(endpoint: string, token: string, options: RequestInit = {}) {
+export async function fetchSpotifyApi(
+  endpoint: string,
+  token: string,
+  options: RequestInit = {},
+) {
   const res = await fetch(`${SPOTIFY_API_BASE_URL}${endpoint}`, {
     ...options,
     headers: {
