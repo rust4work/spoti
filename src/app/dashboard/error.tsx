@@ -28,9 +28,9 @@ export default function Error({
         </p>
       </div>
       <div className="flex gap-4">
-        <Link href="/api/auth/login">
+        <a href="/api/auth/login">
           <Button>Log In Again</Button>
-        </Link>
+        </a>
         <Button variant="outline" onClick={() => reset()}>
           Try Again
         </Button>
