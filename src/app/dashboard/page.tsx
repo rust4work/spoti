@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { Card } from "@/components/ui/Card";
 import Link from "next/link";
 import { ChartsWrapper } from "./ChartsWrapper";
+import { redirect } from "next/navigation";
 
 async function DashboardOverview() {
   const [topTracks, topArtists, recentlyPlayed] = await Promise.all([
@@ -13,6 +14,10 @@ async function DashboardOverview() {
     getSpotifyData("/me/top/artists?limit=5&time_range=short_term"),
     getSpotifyData("/me/player/recently-played?limit=10"),
   ]);
+
+  if (!topTracks || !topArtists || !recentlyPlayed) {
+    redirect("/api/auth/login");
+  }
 
   return (
     <div className="space-y-8">

@@ -3,9 +3,14 @@ import { getSpotifyData } from "@/lib/spotify-server";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Card } from "@/components/ui/Card";
 import { Clock } from "lucide-react";
+import { redirect } from "next/navigation";
 
 async function TopTracksList() {
   const data = await getSpotifyData("/me/top/tracks?limit=50&time_range=long_term");
+
+  if (!data) {
+    redirect("/api/auth/login");
+  }
 
   return (
     <Card className="p-0 overflow-hidden">

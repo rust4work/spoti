@@ -2,9 +2,14 @@ import React, { Suspense } from "react";
 import { getSpotifyData } from "@/lib/spotify-server";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Card } from "@/components/ui/Card";
+import { redirect } from "next/navigation";
 
 async function TopArtistsGrid() {
   const data = await getSpotifyData("/me/top/artists?limit=50&time_range=long_term");
+
+  if (!data) {
+    redirect("/api/auth/login");
+  }
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
