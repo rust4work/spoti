@@ -9,9 +9,5 @@ export default async function WrappedPage() {
     getSpotifyData("/me/top/artists?limit=5&time_range=long_term"),
   ]);
 
-  if (!topTracks || !topArtists) {
-    redirect("/api/auth/login");
-  }
-
   return <WrappedClient topTracks={topTracks} topArtists={topArtists} />;
 }

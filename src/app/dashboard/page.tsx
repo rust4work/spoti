@@ -16,10 +16,6 @@ async function DashboardOverview() {
     getSpotifyData("/me/player/recently-played?limit=10"),
   ]);
 
-  if (!topTracks || !topArtists || !recentlyPlayed) {
-    redirect("/api/auth/login");
-  }
-
   return (
     <div className="space-y-8">
       <div>

@@ -8,10 +8,6 @@ import { redirect } from "next/navigation";
 async function TopTracksList() {
   const data = await getSpotifyData("/me/top/tracks?limit=50&time_range=long_term");
 
-  if (!data) {
-    redirect("/api/auth/login");
-  }
-
   return (
     <Card className="p-0 overflow-hidden">
       <div className="hidden md:grid grid-cols-[16px_1fr_1fr_minmax(120px,1fr)] gap-4 px-6 py-3 border-b border-white/10 text-xs font-medium text-muted uppercase tracking-wider">

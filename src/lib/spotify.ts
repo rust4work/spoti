@@ -4,8 +4,8 @@ export const SPOTIFY_CLIENT_ID =
   process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID || "";
 export const REDIRECT_URI =
   process.env.NODE_ENV === "production"
-    ? "https://spoti-ten.vercel.app/api/auth/callback/spotify"
-    : "http://localhost:3000/api/auth/callback/spotify";
+    ? "https://spoti-ten.vercel.app/api/auth/callback"
+    : "http://127.0.0.1:3000/api/auth/callback";
 export const SCOPES = [
   "user-read-private",
   "user-read-email",
