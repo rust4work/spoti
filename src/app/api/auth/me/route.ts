@@ -1,8 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { fetchSpotifyApi } from "@/lib/spotify";
+import type { SpotifyUserProfile } from "@/types/spotify";
 import { cookies } from "next/headers";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   const cookieStore = await cookies();
   const token = cookieStore.get("spotify_access_token")?.value;
 
@@ -11,9 +12,9 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const userProfile = await fetchSpotifyApi("/me", token);
+    const userProfile = await fetchSpotifyApi<SpotifyUserProfile>("/me", token);
     return NextResponse.json({ authenticated: true, user: userProfile });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ authenticated: false, error: "Invalid token" }, { status: 401 });
   }
 }

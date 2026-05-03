@@ -1,14 +1,19 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 import { ChevronRight, Share2 } from "lucide-react";
+import type {
+  SpotifyTopArtistsResponse,
+  SpotifyTopTracksResponse,
+} from "@/types/spotify";
 
 interface WrappedClientProps {
-  topTracks: any;
-  topArtists: any;
+  topTracks: SpotifyTopTracksResponse;
+  topArtists: SpotifyTopArtistsResponse;
 }
 
 export function WrappedClient({ topTracks, topArtists }: WrappedClientProps) {
@@ -25,7 +30,7 @@ export function WrappedClient({ topTracks, topArtists }: WrappedClientProps) {
           <h1 className="text-6xl md:text-8xl font-black mb-4 tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-spotify-green to-emerald-600">
             Your Spotify <br /> Stats
           </h1>
-          <p className="text-2xl text-white/80 font-medium">Let's see what you've been listening to.</p>
+          <p className="text-2xl text-white/80 font-medium">Let&apos;s see what you&apos;ve been listening to.</p>
         </div>
       ),
       bgClass: "bg-[#191414]",
@@ -35,9 +40,18 @@ export function WrappedClient({ topTracks, topArtists }: WrappedClientProps) {
       content: topTrack ? (
         <div className="text-center flex flex-col items-center">
           <p className="text-2xl text-white/80 font-medium mb-8">Your #1 track of all time was</p>
-          <img src={topTrack.album.images[0]?.url} alt={topTrack.name} className="w-64 h-64 md:w-80 md:h-80 shadow-2xl rounded-lg mb-8" />
+          {topTrack.album.images[0]?.url && (
+            <Image
+              src={topTrack.album.images[0].url}
+              alt={topTrack.name}
+              width={320}
+              height={320}
+              sizes="(min-width: 768px) 320px, 256px"
+              className="mb-8 h-64 w-64 rounded-lg object-cover shadow-2xl md:h-80 md:w-80"
+            />
+          )}
           <h2 className="text-5xl md:text-6xl font-black mb-2">{topTrack.name}</h2>
-          <p className="text-xl text-spotify-green font-bold">{topTrack.artists[0].name}</p>
+          <p className="text-xl text-spotify-green font-bold">{topTrack.artists[0]?.name}</p>
         </div>
       ) : (
         <div className="text-center text-xl">Not enough data.</div>
@@ -48,8 +62,17 @@ export function WrappedClient({ topTracks, topArtists }: WrappedClientProps) {
       id: "top-artist",
       content: topArtist ? (
         <div className="text-center flex flex-col items-center">
-          <p className="text-2xl text-white/80 font-medium mb-8">You couldn't get enough of</p>
-          <img src={topArtist.images[0]?.url} alt={topArtist.name} className="w-64 h-64 md:w-80 md:h-80 shadow-2xl rounded-full object-cover mb-8" />
+          <p className="text-2xl text-white/80 font-medium mb-8">You couldn&apos;t get enough of</p>
+          {topArtist.images[0]?.url && (
+            <Image
+              src={topArtist.images[0].url}
+              alt={topArtist.name}
+              width={320}
+              height={320}
+              sizes="(min-width: 768px) 320px, 256px"
+              className="mb-8 h-64 w-64 rounded-full object-cover shadow-2xl md:h-80 md:w-80"
+            />
+          )}
           <h2 className="text-5xl md:text-7xl font-black mb-2 text-spotify-green">{topArtist.name}</h2>
         </div>
       ) : (
@@ -75,12 +98,12 @@ export function WrappedClient({ topTracks, topArtists }: WrappedClientProps) {
         </div>
       ),
       bgClass: "bg-gradient-to-br from-[#0f2027] via-[#203a43] to-[#2c5364]",
-    }
+    },
   ];
 
   const nextSlide = () => {
     if (currentSlide < slides.length - 1) {
-      setCurrentSlide(prev => prev + 1);
+      setCurrentSlide((prev) => prev + 1);
     }
   };
 

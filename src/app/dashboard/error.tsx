@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import { Button } from "@/components/ui/Button";
-import Link from "next/link";
 import { AlertTriangle } from "lucide-react";
 
 export default function Error({
@@ -24,7 +23,7 @@ export default function Error({
       <div>
         <h2 className="text-2xl font-bold mb-2">Session Expired or API Error</h2>
         <p className="text-muted max-w-md mx-auto mb-6">
-          We couldn't load your Spotify data. Your session might have expired, or Spotify's API might be temporarily unavailable.
+          We couldn&apos;t load your Spotify data. Your session might have expired, or Spotify&apos;s API might be temporarily unavailable.
         </p>
       </div>
       <div className="flex gap-4">

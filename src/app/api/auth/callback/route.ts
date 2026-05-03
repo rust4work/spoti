@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 
 export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get("code");
+  const state = req.nextUrl.searchParams.get("state");
   
   if (!code) {
     return NextResponse.json({ error: "Missing authorization code" }, { status: 400 });
@@ -11,9 +12,14 @@ export async function GET(req: NextRequest) {
 
   const cookieStore = await cookies();
   const codeVerifier = cookieStore.get("spotify_code_verifier")?.value;
+  const storedState = cookieStore.get("spotify_auth_state")?.value;
 
   if (!codeVerifier) {
     return NextResponse.json({ error: "Missing code verifier" }, { status: 400 });
+  }
+
+  if (!state || !storedState || state !== storedState) {
+    return NextResponse.json({ error: "Invalid auth state" }, { status: 400 });
   }
 
   const params = new URLSearchParams();
@@ -43,6 +49,7 @@ export async function GET(req: NextRequest) {
     cookieStore.set("spotify_access_token", data.access_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
       path: "/",
       maxAge: data.expires_in,
     });
@@ -51,13 +58,14 @@ export async function GET(req: NextRequest) {
       cookieStore.set("spotify_refresh_token", data.refresh_token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
         path: "/",
-        maxAge: 30 * 24 * 60 * 60, // 30 days
+        maxAge: 30 * 24 * 60 * 60,
       });
     }
 
-    // Clear code verifier
     cookieStore.delete("spotify_code_verifier");
+    cookieStore.delete("spotify_auth_state");
 
     return NextResponse.redirect(new URL("/dashboard", req.url));
   } catch (error) {

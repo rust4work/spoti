@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { useAuth } from "@/contexts/AuthContext";
 import { LogOut, User } from "lucide-react";
 
@@ -18,17 +19,20 @@ export function Header() {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 bg-card rounded-full p-1 pr-3">
               {user.images?.[0] ? (
-                <img
+                <Image
                   src={user.images[0].url}
-                  alt={user.display_name}
-                  className="w-8 h-8 rounded-full object-cover"
+                  alt={user.display_name || "Spotify user"}
+                  width={32}
+                  height={32}
+                  sizes="32px"
+                  className="h-8 w-8 rounded-full object-cover"
                 />
               ) : (
                 <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
                   <User className="w-4 h-4 text-white" />
                 </div>
               )}
-              <span className="text-sm font-medium">{user.display_name}</span>
+              <span className="text-sm font-medium">{user.display_name || "Spotify user"}</span>
             </div>
             <button
               onClick={logout}

@@ -4,8 +4,8 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 
 interface UserProfile {
   id: string;
-  display_name: string;
-  email: string;
+  display_name: string | null;
+  email?: string;
   images: { url: string }[];
 }
 
@@ -47,7 +47,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, isAuthenticated: !!user, logout }}>
+    <AuthContext.Provider
+      value={{ user, isLoading, isAuthenticated: !!user, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );

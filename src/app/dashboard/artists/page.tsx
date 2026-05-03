@@ -1,28 +1,41 @@
 import React, { Suspense } from "react";
+import Image from "next/image";
+import type { SpotifyTopArtistsResponse } from "@/types/spotify";
 import { getSpotifyData } from "@/lib/spotify-server";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Card } from "@/components/ui/Card";
-import { redirect } from "next/navigation";
-
 import { AutoRedirect } from "@/components/auth/AutoRedirect";
 
 async function TopArtistsGrid() {
-  const data = await getSpotifyData("/me/top/artists?limit=50&time_range=long_term");
+  const result = await getSpotifyData<SpotifyTopArtistsResponse>(
+    "/me/top/artists?limit=50&time_range=long_term",
+  );
 
-  if (!data) {
+  if (result.status === "unauthenticated" && result.canRefresh) {
+    return <AutoRedirect to="/api/auth/refresh?returnTo=/dashboard/artists" />;
+  }
+
+  if (result.status !== "success") {
     return <AutoRedirect to="/api/auth/login" />;
   }
 
+  const data = result.data;
+
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-      {data?.items.map((artist: any, index: number) => (
+      {data.items.map((artist, index) => (
         <Card key={artist.id} className="p-4 flex flex-col items-center text-center group">
           <div className="relative mb-4">
-            <img 
-              src={artist.images[0]?.url} 
-              alt={artist.name} 
-              className="w-32 h-32 rounded-full object-cover shadow-lg group-hover:shadow-spotify-green/20 transition-shadow"
-            />
+            {artist.images[0]?.url && (
+              <Image
+                src={artist.images[0].url}
+                alt={artist.name}
+                width={128}
+                height={128}
+                sizes="128px"
+                className="h-32 w-32 rounded-full object-cover shadow-lg transition-shadow group-hover:shadow-spotify-green/20"
+              />
+            )}
             <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-black rounded-full flex items-center justify-center font-bold text-sm border-2 border-card">
               {index + 1}
             </div>

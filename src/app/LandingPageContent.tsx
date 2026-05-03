@@ -4,7 +4,6 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/Button";
 import { Music } from "lucide-react";
-import Link from "next/link";
 
 export function LandingPageContent() {
   return (

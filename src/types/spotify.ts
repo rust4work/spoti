@@ -1,7 +1,7 @@
 export interface SpotifyImage {
   url: string;
-  height: number;
-  width: number;
+  height: number | null;
+  width: number | null;
 }
 
 export interface SpotifyArtist {
@@ -15,6 +15,7 @@ export interface SpotifyArtist {
   images: SpotifyImage[];
   href: string;
   uri: string;
+  popularity?: number;
 }
 
 export interface SpotifyAlbum {
@@ -63,4 +64,37 @@ export interface SpotifyRecentlyPlayedItem {
     external_urls: { spotify: string };
     uri: string;
   } | null;
+}
+
+export interface SpotifyPagingResponse<T> {
+  href: string;
+  items: T[];
+  limit: number;
+  next: string | null;
+  offset: number;
+  previous: string | null;
+  total: number;
+}
+
+export interface SpotifyCursorPagingResponse<T> {
+  cursors?: {
+    after?: string;
+    before?: string;
+  };
+  href: string;
+  items: T[];
+  limit: number;
+  next: string | null;
+}
+
+export type SpotifyTopTracksResponse = SpotifyPagingResponse<SpotifyTrack>;
+export type SpotifyTopArtistsResponse = SpotifyPagingResponse<SpotifyArtist>;
+export type SpotifyRecentlyPlayedResponse =
+  SpotifyCursorPagingResponse<SpotifyRecentlyPlayedItem>;
+
+export interface SpotifyUserProfile {
+  id: string;
+  display_name: string | null;
+  email?: string;
+  images: SpotifyImage[];
 }

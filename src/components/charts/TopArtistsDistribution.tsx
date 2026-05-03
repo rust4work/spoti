@@ -3,9 +3,10 @@
 import React, { useMemo } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { Card } from "../ui/Card";
+import type { SpotifyArtist } from "@/types/spotify";
 
 interface TopArtistsDistributionProps {
-  artists: any[];
+  artists: SpotifyArtist[];
 }
 
 export function TopArtistsDistribution({ artists }: TopArtistsDistributionProps) {
@@ -14,7 +15,7 @@ export function TopArtistsDistribution({ artists }: TopArtistsDistributionProps)
     
     return artists.slice(0, 10).map((artist) => ({
       name: artist.name,
-      popularity: artist.popularity,
+      popularity: artist.popularity ?? 0,
     }));
   }, [artists]);
 

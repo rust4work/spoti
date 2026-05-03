@@ -3,6 +3,7 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import { AutoRedirect } from "@/components/auth/AutoRedirect";
 
 export default async function DashboardLayout({
   children,
@@ -11,8 +12,13 @@ export default async function DashboardLayout({
 }) {
   const cookieStore = await cookies();
   const token = cookieStore.get("spotify_access_token");
+  const refreshToken = cookieStore.get("spotify_refresh_token");
 
-  if (!token) {
+  if (!token && refreshToken) {
+    return <AutoRedirect to="/api/auth/refresh?returnTo=/dashboard" />;
+  }
+
+  if (!token && !refreshToken) {
     redirect("/");
   }
 

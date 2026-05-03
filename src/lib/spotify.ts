@@ -18,6 +18,16 @@ export const SPOTIFY_AUTH_URL = "https://accounts.spotify.com/authorize";
 export const SPOTIFY_TOKEN_URL = "https://accounts.spotify.com/api/token";
 export const SPOTIFY_API_BASE_URL = "https://api.spotify.com/v1";
 
+export class SpotifyApiError extends Error {
+  constructor(
+    public status: number,
+    message: string,
+  ) {
+    super(message);
+    this.name = "SpotifyApiError";
+  }
+}
+
 /**
  * Generates a random alphanumeric string for PKCE
  */
@@ -53,11 +63,11 @@ export async function generateCodeChallenge(
 /**
  * Spotify API fetch wrapper
  */
-export async function fetchSpotifyApi(
+export async function fetchSpotifyApi<T>(
   endpoint: string,
   token: string,
   options: RequestInit = {},
-) {
+): Promise<T> {
   const res = await fetch(`${SPOTIFY_API_BASE_URL}${endpoint}`, {
     ...options,
     headers: {
@@ -68,11 +78,11 @@ export async function fetchSpotifyApi(
   });
 
   if (!res.ok) {
-    throw new Error(`Spotify API error: ${res.statusText}`);
+    throw new SpotifyApiError(res.status, `Spotify API error: ${res.statusText}`);
   }
 
   if (res.status === 204) {
-    return null; // No content
+    return null as T;
   }
 
   return res.json();

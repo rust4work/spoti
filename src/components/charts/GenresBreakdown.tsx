@@ -3,9 +3,10 @@
 import React, { useMemo } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 import { Card } from "../ui/Card";
+import type { SpotifyArtist } from "@/types/spotify";
 
 interface GenresBreakdownProps {
-  artists: any[];
+  artists: SpotifyArtist[];
 }
 
 const COLORS = ["#1DB954", "#1ed760", "#40e0d0", "#191414", "#b3b3b3"];

@@ -5,9 +5,11 @@ import { cookies } from "next/headers";
 export async function GET(req: NextRequest) {
   const cookieStore = await cookies();
   const refreshToken = cookieStore.get("spotify_refresh_token")?.value;
+  const returnTo = req.nextUrl.searchParams.get("returnTo");
+  const redirectTarget = returnTo?.startsWith("/") ? returnTo : "/dashboard";
 
   if (!refreshToken) {
-    return NextResponse.json({ error: "No refresh token available" }, { status: 401 });
+    return NextResponse.redirect(new URL("/api/auth/login", req.url));
   }
 
   const params = new URLSearchParams();
@@ -33,6 +35,7 @@ export async function GET(req: NextRequest) {
     cookieStore.set("spotify_access_token", data.access_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
       path: "/",
       maxAge: data.expires_in,
     });
@@ -41,14 +44,15 @@ export async function GET(req: NextRequest) {
       cookieStore.set("spotify_refresh_token", data.refresh_token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
         path: "/",
         maxAge: 30 * 24 * 60 * 60,
       });
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.redirect(new URL(redirectTarget, req.url));
   } catch (error) {
     console.error("Refresh error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.redirect(new URL("/api/auth/login", req.url));
   }
 }

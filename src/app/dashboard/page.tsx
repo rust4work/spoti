@@ -1,5 +1,10 @@
 import React, { Suspense } from "react";
-import type { SpotifyRecentlyPlayedItem, SpotifyArtist } from "@/types/spotify";
+import Image from "next/image";
+import type {
+  SpotifyRecentlyPlayedResponse,
+  SpotifyTopArtistsResponse,
+  SpotifyTopTracksResponse,
+} from "@/types/spotify";
 import { getSpotifyData } from "@/lib/spotify-server";
 import { StatCard } from "@/components/ui/StatCard";
 import { Music, Mic2, Clock } from "lucide-react";
@@ -7,19 +12,42 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { Card } from "@/components/ui/Card";
 import Link from "next/link";
 import { ChartsWrapper } from "./ChartsWrapper";
-import { redirect } from "next/navigation";
 import { AutoRedirect } from "@/components/auth/AutoRedirect";
 
 async function DashboardOverview() {
   const [topTracks, topArtists, recentlyPlayed] = await Promise.all([
-    getSpotifyData("/me/top/tracks?limit=5&time_range=short_term"),
-    getSpotifyData("/me/top/artists?limit=5&time_range=short_term"),
-    getSpotifyData("/me/player/recently-played?limit=10"),
+    getSpotifyData<SpotifyTopTracksResponse>(
+      "/me/top/tracks?limit=5&time_range=short_term",
+    ),
+    getSpotifyData<SpotifyTopArtistsResponse>(
+      "/me/top/artists?limit=5&time_range=short_term",
+    ),
+    getSpotifyData<SpotifyRecentlyPlayedResponse>(
+      "/me/player/recently-played?limit=10",
+    ),
   ]);
 
-  if (!topTracks || !topArtists || !recentlyPlayed) {
+  const results = [topTracks, topArtists, recentlyPlayed];
+  const needsRefresh = results.some(
+    (result) => result.status === "unauthenticated" && result.canRefresh,
+  );
+
+  if (needsRefresh) {
+    return <AutoRedirect to="/api/auth/refresh?returnTo=/dashboard" />;
+  }
+
+  if (
+    topTracks.status !== "success" ||
+    topArtists.status !== "success" ||
+    recentlyPlayed.status !== "success"
+  ) {
     return <AutoRedirect to="/api/auth/login" />;
   }
+
+  const topTracksData = topTracks.data;
+  const topArtistsData = topArtists.data;
+  const recentlyPlayedData = recentlyPlayed.data;
+  const topArtistFollowers = topArtistsData.items[0]?.followers?.total;
 
   return (
     <div className="space-y-8">
@@ -31,19 +59,23 @@ async function DashboardOverview() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <StatCard
           title="Top Track"
-          value={topTracks?.items[0]?.name || "N/A"}
-          description={topTracks?.items[0]?.artists[0]?.name}
+          value={topTracksData.items[0]?.name || "N/A"}
+          description={topTracksData.items[0]?.artists[0]?.name}
           icon={<Music />}
         />
         <StatCard
           title="Top Artist"
-          value={topArtists?.items[0]?.name || "N/A"}
-          description={`${topArtists?.items[0]?.followers?.total.toLocaleString()} followers`}
+          value={topArtistsData.items[0]?.name || "N/A"}
+          description={
+            typeof topArtistFollowers === "number"
+              ? `${topArtistFollowers.toLocaleString()} followers`
+              : "Followers unavailable"
+          }
           icon={<Mic2 />}
         />
         <StatCard
           title="Recent Listens"
-          value={recentlyPlayed?.items.length || 0}
+          value={recentlyPlayedData.items.length}
           description="In your recent history"
           icon={<Clock />}
         />
@@ -56,19 +88,24 @@ async function DashboardOverview() {
             <h2 className="text-xl font-semibold">Recently Played</h2>
           </div>
           <div className="space-y-4">
-            {recentlyPlayed?.items.slice(0, 5).map((item: SpotifyRecentlyPlayedItem, i: number) => (
+            {recentlyPlayedData.items.slice(0, 5).map((item, i) => (
               <div key={`${item.track.id}-${i}`} className="flex items-center gap-4 group">
-                <img
-                  src={item.track.album.images[0]?.url}
-                  alt={item.track.name}
-                  className="w-12 h-12 rounded shadow-md"
-                />
+                {item.track.album.images[0]?.url && (
+                  <Image
+                    src={item.track.album.images[0].url}
+                    alt={item.track.name}
+                    width={48}
+                    height={48}
+                    sizes="48px"
+                    className="h-12 w-12 rounded object-cover shadow-md"
+                  />
+                )}
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate group-hover:text-spotify-green transition-colors">
                     {item.track.name}
                   </p>
                   <p className="text-xs text-muted truncate">
-                    {item.track.artists.map((a: SpotifyArtist) => a.name).join(", ")}
+                    {item.track.artists.map((artist) => artist.name).join(", ")}
                   </p>
                 </div>
                 <div className="text-xs text-muted">
@@ -88,13 +125,18 @@ async function DashboardOverview() {
             </Link>
           </div>
           <div className="space-y-4">
-            {topArtists?.items.map((artist: SpotifyArtist) => (
+            {topArtistsData.items.map((artist) => (
               <div key={artist.id} className="flex items-center gap-4 group">
-                <img
-                  src={artist.images[0]?.url}
-                  alt={artist.name}
-                  className="w-12 h-12 rounded-full shadow-md object-cover"
-                />
+                {artist.images[0]?.url && (
+                  <Image
+                    src={artist.images[0].url}
+                    alt={artist.name}
+                    width={48}
+                    height={48}
+                    sizes="48px"
+                    className="h-12 w-12 rounded-full object-cover shadow-md"
+                  />
+                )}
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate group-hover:text-spotify-green transition-colors">
                     {artist.name}
@@ -109,7 +151,7 @@ async function DashboardOverview() {
         </Card>
       </div>
 
-      <ChartsWrapper artists={topArtists?.items || []} />
+      <ChartsWrapper artists={topArtistsData.items} />
     </div>
   );
 }

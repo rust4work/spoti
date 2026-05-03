@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Spotify Analytics
+
+A Next.js 16 App Router project for exploring personal Spotify listening data. The app uses Spotify OAuth with PKCE, server-side API access through HTTP-only cookies, dashboard views for top tracks/artists, Recharts visualizations, and a lightweight Wrapped-style story view.
+
+## Features
+
+- Spotify OAuth login with PKCE and state validation
+- HTTP-only access and refresh token cookies
+- Automatic refresh redirect when the access token expires
+- Dashboard overview with top track, top artist, recent listens, genre breakdown, and artist popularity chart
+- Dedicated top tracks and top artists pages
+- Wrapped-style animated recap screen
+- Typed Spotify API responses and strict TypeScript setup
+- Next Image optimization for Spotify artwork
+
+## Tech Stack
+
+- Next.js 16 App Router
+- React 19
+- TypeScript
+- Tailwind CSS 4
+- Recharts
+- Framer Motion
+- Lucide React
 
 ## Getting Started
 
-First, run the development server:
+Create a Spotify app in the Spotify Developer Dashboard and add this redirect URI:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```txt
+http://localhost:3000/api/auth/callback
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+For production, also add your deployed callback URL:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```txt
+https://your-domain.com/api/auth/callback
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Create `.env.local`:
 
-## Learn More
+```env
+NEXT_PUBLIC_SPOTIFY_CLIENT_ID=your_spotify_client_id
+NEXT_PUBLIC_REDIRECT_URI=http://localhost:3000/api/auth/callback
+```
 
-To learn more about Next.js, take a look at the following resources:
+Install and run:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm install
+npm run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Open [http://localhost:3000](http://localhost:3000).
 
-## Deploy on Vercel
+## Quality Checks
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npm run lint
+npx tsc --noEmit
+npm run build
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Notes
+
+The app intentionally keeps Spotify API calls server-side where user tokens are read from HTTP-only cookies. If an access token expires, protected pages redirect through `/api/auth/refresh` and then back to the requested page instead of throwing a Server Components render error.
+
+`next.config.ts` pins the project root for Turbopack because parent directories can contain unrelated lockfiles on local machines.

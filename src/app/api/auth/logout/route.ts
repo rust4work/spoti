@@ -6,6 +6,7 @@ export async function GET(req: NextRequest) {
   cookieStore.delete("spotify_access_token");
   cookieStore.delete("spotify_refresh_token");
   cookieStore.delete("spotify_code_verifier");
+  cookieStore.delete("spotify_auth_state");
 
   return NextResponse.redirect(new URL("/", req.url));
 }

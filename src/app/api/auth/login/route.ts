@@ -1,18 +1,33 @@
-import { NextRequest, NextResponse } from "next/server";
-import { generateRandomString, generateCodeChallenge, SPOTIFY_AUTH_URL, SPOTIFY_CLIENT_ID, REDIRECT_URI, SCOPES } from "@/lib/spotify";
+import { NextResponse } from "next/server";
+import {
+  generateRandomString,
+  generateCodeChallenge,
+  SPOTIFY_AUTH_URL,
+  SPOTIFY_CLIENT_ID,
+  REDIRECT_URI,
+  SCOPES,
+} from "@/lib/spotify";
 import { cookies } from "next/headers";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   const codeVerifier = generateRandomString(64);
   const codeChallenge = await generateCodeChallenge(codeVerifier);
+  const state = generateRandomString(32);
 
-  // Store code_verifier in cookies to use it later in the callback
   const cookieStore = await cookies();
   cookieStore.set("spotify_code_verifier", codeVerifier, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
     path: "/",
-    maxAge: 60 * 10, // 10 minutes
+    maxAge: 60 * 10,
+  });
+  cookieStore.set("spotify_auth_state", state, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 10,
   });
 
   const authUrl = new URL(SPOTIFY_AUTH_URL);
@@ -22,6 +37,7 @@ export async function GET(req: NextRequest) {
   authUrl.searchParams.append("code_challenge_method", "S256");
   authUrl.searchParams.append("code_challenge", codeChallenge);
   authUrl.searchParams.append("scope", SCOPES);
+  authUrl.searchParams.append("state", state);
 
   return NextResponse.redirect(authUrl.toString());
 }
